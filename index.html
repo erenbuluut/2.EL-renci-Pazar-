@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bozok Pazar | Kampüsün Pazaryeri</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- MODERN DEĞİŞKENLER --- */
+        :root {
+            --primary: #c1081d; /* Bozok Kırmızısı */
+            --primary-dark: #960616;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --accent: #fbbf24; /* Canlı Sarı */
+            --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+            --glass: rgba(255, 255, 255, 0.85);
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body { background-color: #f8fafc; color: var(--dark); overflow-x: hidden; }
+        
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+
+        /* --- NAVBAR (CAM EFEKTİ) --- */
+        header {
+            position: sticky; top: 0; z-index: 1000;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .navbar {
+            max-width: 1200px; margin: 0 auto; padding: 15px 24px;
+            display: flex; justify-content: space-between; align-items: center; gap: 20px;
+        }
+
+        .logo {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px;
+        }
+
+        .logo img { height: 45px; width: auto; border-radius: 50%; }
+
+        .search-box {
+            flex: 1; max-width: 450px; position: relative; display: none; 
+        }
+        @media(min-width: 768px) { .search-box { display: block; } }
+
+        .search-box input {
+            width: 100%; padding: 12px 50px 12px 20px;
+            border-radius: 50px; border: 2px solid #e2e8f0;
+            background: var(--white); outline: none; transition: 0.3s;
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(193, 8, 29, 0.1); }
+        .search-box button {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: var(--primary); color: white; border: none;
+            width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .auth-btns { display: flex; gap: 10px; }
+        
+        .btn {
+            padding: 10px 24px; border-radius: 50px; font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.3s ease; border: none; display: flex; align-items: center; gap: 8px;
+        }
+        
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: rgba(193, 8, 29, 0.05); }
+        
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(193, 8, 29, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(193, 8, 29, 0.4); background: var(--primary-dark); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            position: relative; height: 500px; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(193, 8, 29, 0.8)), url('https://bozok.edu.tr/assets/img/slider/1.jpg');
+            background-size: cover; background-position: center; margin-bottom: 40px;
+            border-radius: 0 0 50% 50% / 20px; /* Hafif kavisli alt kısım */
+        }
+        
+        .hero-content {
+            text-align: center; color: white; padding: 20px; max-width: 700px;
+            animation: slideUp 1s ease;
+        }
+        
+        .hero h1 { font-size: 3.5rem; margin-bottom: 15px; line-height: 1.1; font-weight: 800; }
+        .hero p { font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9; font-weight: 300; }
+        
+        .hero-stats {
+            display: flex; gap: 30px; justify-content: center; margin-top: 40px;
+        }
+        .stat-item h3 { font-size: 2rem; color: var(--accent); }
+        .stat-item span { font-size: 0.9rem; opacity: 0.8; }
+
+        /* --- KATEGORİLER & FİLTRELER --- */
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+        .section-title { font-size: 1.8rem; font-weight: 700; color: var(--dark); }
+        .section-title span { color: var(--primary); }
+
+        .categories {
+            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px;
+            scrollbar-width: none; /* Scrollbar gizle */
+        }
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-pill {
+            background: white; padding: 12px 24px; border-radius: 12px;
+            border: 1px solid #e2e8f0; cursor: pointer; white-space: nowrap;
+            font-weight: 500; display: flex; align-items: center; gap: 8px;
+            transition: 0.3s; color: var(--gray);
+        }
+        .cat-pill:hover, .cat-pill.active {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(193, 8, 29, 0.2); transform: translateY(-2px);
+        }
+
+        /* --- ÜRÜN KARTLARI (CARD) --- */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px;
+        }
+
+        .card {
+            background: white; border-radius: var(--radius); overflow: hidden;
+            border: 1px solid #f1f5f9; position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+            border-color: rgba(193, 8, 29, 0.1);
+        }
+
+        .card-badge {
+            position: absolute; top: 15px; left: 15px; z-index: 10;
+            background: var(--accent); color: #000; padding: 6px 14px;
+            font-size: 0.7rem; font-weight: 700; border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .fav-btn {
+            position: absolute; top: 15px; right: 15px; z-index: 10;
+            width: 35px; height: 35px; background: rgba(255,255,255,0.9);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; color: var(--gray);
+        }
+        .fav-btn:hover { color: var(--primary); transform: scale(1.1); }
+
+        .card-img {
+            height: 220px; background: #e2e8f0; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .card-img i { font-size: 4rem; color: #cbd5e1; transition: 0.3s; }
+        .card:hover .card-img i { transform: scale(1.1); color: #94a3b8; }
+
+        .card-body { padding: 20px; }
+        
+        .card-price { font-size: 1.4rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        .card-title { font-size: 1rem; color: var(--dark); font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
+        
+        .card-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 12px;
+            font-size: 0.85rem; color: var(--gray);
+        }
+        .user-info { display: flex; align-items: center; gap: 6px; }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--dark); color: #94a3b8; padding: 60px 0 20px; margin-top: 80px;
+        }
+        .footer-content {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;
+        }
+        .footer-col h4 { color: white; margin-bottom: 20px; font-size: 1.1rem; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a:hover { color: var(--primary); }
+        .copyright { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; }
+
+        /* --- MODAL (POPUP) --- */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px);
+            z-index: 2000; display: none; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 420px;
+            position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            text-align: center; animation: zoomIn 0.3s;
+        }
+
+        .form-input {
+            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px;
+            border: 2px solid #e2e8f0; background: #f8fafc; font-size: 1rem; transition: 0.3s;
+        }
+        .form-input:focus { border-color: var(--primary); background: white; outline: none; }
+
+        /* --- TOAST NOTIFICATION (BİLDİRİM) --- */
+        .toast {
+            position: fixed; top: 20px; right: -400px; background: white;
+            padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 15px; z-index: 3000;
+            border-left: 5px solid #22c55e; transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .toast.show { right: 20px; }
+        .toast i { color: #22c55e; font-size: 1.5rem; }
+
+        /* --- CHAT --- */
+        .chat-btn {
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+            background: var(--primary); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+            cursor: pointer; box-shadow: 0 10px 25px rgba(193, 8, 29, 0.4);
+            transition: 0.3s; z-index: 1500;
+        }
+        .chat-btn:hover { transform: scale(1.1) rotate(10deg); }
+
+        .chat-window {
+            position: fixed; bottom: 100px; right: 30px; width: 340px; height: 450px;
+            background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            z-index: 1500; display: none; flex-direction: column; overflow: hidden;
+            border: 1px solid #f1f5f9; animation: slideUp 0.3s;
+        }
+        
+        .chat-header { background: var(--primary); padding: 15px; color: white; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .chat-body { flex: 1; padding: 15px; background: #f8fafc; overflow-y: auto; }
+        .msg { padding: 10px 15px; border-radius: 12px; margin-bottom: 10px; max-width: 80%; font-size: 0.9rem; }
+        .msg-in { background: white; border: 1px solid #e2e8f0; border-bottom-left-radius: 2px; }
+        .msg-out { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 2px; }
+        
+        /* Animasyonlar */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Mobil */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero { height: 400px; }
+            .navbar { padding: 15px; }
+            .logo span { display: none; } /* Mobilde sadece logo resmi kalsın */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <div>
+            <h4 style="margin-bottom:2px;">Başarılı!</h4>
+            <p style="font-size:0.9rem; color:#64748b;">Hesabınız doğrulandı ve oluşturuldu.</p>
+        </div>
+    </div>
+
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="position:absolute; top:20px; right:20px; cursor:pointer; font-size:1.5rem; color:#94a3b8;">&times;</span>
+            <div style="width:60px; height:60px; background:#fef2f2; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; color:var(--primary); font-size:1.5rem;">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2 style="margin-bottom:10px; color:var(--dark);">Bozok Pazar'a Katıl</h2>
+            <p style="color:var(--gray); margin-bottom:25px; font-size:0.95rem;">Sadece <b>@ogr.bozok.edu.tr</b> maili ile güvenli kayıt.</p>
+            
+            <form onsubmit="handleRegister(event)">
+                <input type="text" class="form-input" placeholder="Ad Soyad" required>
+                <input type="email" id="emailInput" class="form-input" placeholder="ogrenci.no@ogr.bozok.edu.tr" required>
+                <input type="password" class="form-input" placeholder="Şifre" required>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:15px;">Ücretsiz Hesap Oluştur</button>
+            </form>
+            <div id="errorMsg" style="color:#ef4444; margin-top:15px; font-size:0.9rem; display:none; align-items:center; justify-content:center; gap:5px;">
+                <i class="fas fa-exclamation-triangle"></i> Hatalı mail uzantısı!
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="navbar">
+            <a href="#" class="logo">
+                <img src="logo.png" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/2997/2997302.png'; this.style.borderRadius='0';" alt="Bozok Logo">
+                <span>BOZOK PAZAR</span>
+            </a>
+            
+            <div class="search-box">
+                <input type="text" placeholder="Kitap, not veya eşya ara...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="auth-btns" id="guestNav">
+                <button onclick="openModal()" class="btn btn-outline">Giriş Yap</button>
+                <button onclick="openModal()" class="btn btn-primary">Kayıt Ol</button>
+            </div>
+
+            <div class="auth-btns" id="userNav" style="display:none;">
+                <button class="btn btn-primary" style="background:var(--accent); color:black;">
+                    <i class="fas fa-plus"></i> İlan Ver
+                </button>
+                <div style="width:40px; height:40px; background:var(--dark); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Üniversitenin <br> <span style="color:var(--accent);">Alışveriş Meydanı</span></h1>
+            <p>Ders notlarından gitara, hesap makinesinden yurda kadar her şeyi güvenle al, sat, takasla.</p>
+            <button onclick="openModal()" class="btn btn-primary" style="padding:15px 40px; font-size:1.1rem; margin:0 auto;">
+                Hemen Keşfet <i class="fas fa-arrow-right"></i>
+            </button>
+            
+            <div class="hero-stats">
+                <div class="stat-item"><h3>1.2k+</h3><span>Öğrenci</span></div>
+                <div class="stat-item"><h3>850+</h3><span>İlan</span></div>
+                <div class="stat-item"><h3>%100</h3><span>Güvenli</span></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="main-container">
+        
+        <div class="categories">
+            <div class="cat-pill active"><i class="fas fa-th-large"></i> Tümü</div>
+            <div class="cat-pill"><i class="fas fa-book-open"></i> Ders Kitapları</div>
+            <div class="cat-pill"><i class="fas fa-file-alt"></i> Notlar</div>
+            <div class="cat-pill"><i class="fas fa-desktop"></i> Elektronik</div>
+            <div class="cat-pill"><i class="fas fa-home"></i> Ev/Yurt</div>
+            <div class="cat-pill"><i class="fas fa-palette"></i> Hobi</div>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">Vitrindeki <span>Fırsatlar</span></h2>
+            <a href="#" style="color:var(--primary); font-weight:600;">Tümünü Gör <i class="fas fa-chevron-right"></i></a>
+        </div>
+
+        <div class="grid">
+            
+            <div class="card">
+                <div class="card-badge"><i class="fas fa-bolt"></i> Hızlı Satış</div>
+                <div class="fav-btn"><i class="far fa-heart"></i></div>
+                <div class="card-img">
+                    <i class="fas fa-book fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <div class="card-price">150 ₺</div>
+                    <h3 class="card-title">Makro İktisat - Erdal Ünsal (Hiç çizik yok)</h3>
+                    <div class="card-meta">
+                        <div class="user-info">
+                            <i class="fas fa-user-circle"></i> Ali K.
+                        </div>
+                        <span><i class="fas fa-map-marker-alt"></i> İİBF</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-badge" style="background:var(--primary); color:white;">YENİ</div>
+                <div class="fav-btn"><i class="far fa-heart"></i></div>
+                <div class="card-img">
+                    <i class="fas fa-calculator fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <div class="card-price">450 ₺</div>
+                    <h3 class="card-title">Casio Bilimsel Hesap Makinesi (Mühendislik için)</h3>
+                    <div class="card-meta">
+                        <div class="user-info">
+                            <i class="fas fa-user-circle"></i> Zeynep T.
+                        </div>
+                        <span><i class="fas fa-map-marker-alt"></i> Müh. Fak.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="fav-btn"><i class="far fa-heart"></i></div>
+                <div class="card-img">
+                    <i class="fas fa-guitar fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <div class="card-price">1.200 ₺</div>
+                    <h3 class="card-title">Yamaha C40 Klasik Gitar + Kılıf</h3>
+                    <div class="card-meta">
+                        <div class="user-info">
+                            <i class="fas fa-user-circle"></i> Burak Y.
+                        </div>
+                        <span><i class="fas fa-map-marker-alt"></i> Eğitim</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-badge"><i class="fas fa-star"></i> Popüler</div>
+                <div class="fav-btn"><i class="far fa-heart"></i></div>
+                <div class="card-img">
+                    <i class="fas fa-sticky-note fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <div class="card-price">80 ₺</div>
+                    <h3 class="card-title">Tüm Anatomi Çıkmış Sorular ve Notlar</h3>
+                    <div class="card-meta">
+                        <div class="user-info">
+                            <i class="fas fa-user-circle"></i> Elif S.
+                        </div>
+                        <span><i class="fas fa-map-marker-alt"></i> Tıp</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <div class="main-container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom:15px; color:white;">
+                        <i class="fas fa-store"></i> BOZOK PAZAR
+                    </div>
+                    <p style="font-size:0.9rem;">Öğrenciden öğrenciye, güvenli ve hızlı alışverişin tek adresi.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Hızlı Linkler</h4>
+                    <ul>
+                        <li><a href="#">Anasayfa</a></li>
+                        <li><a href="#">Vitrin İlanları</a></li>
+                        <li><a href="#">Güvenlik İpuçları</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>İletişim</h4>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-envelope"></i> destek@bozokpazar.com</a></li>
+                        <li><a href="#"><i class="fas fa-university"></i> Yozgat Bozok Üni.</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2026 Bozok Pazar. Tüm hakları saklıdır. Öğrenci Projesidir.
+            </div>
+        </div>
+    </footer>
+
+    <div class="chat-btn" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:30px; height:30px; background:white; border-radius:50%; color:var(--primary); display:flex; align-items:center; justify-content:center;"><i class="fas fa-user"></i></div>
+                <span>Ali K. (Satıcı)</span>
+            </div>
+            <span onclick="toggleChat()" style="cursor:pointer;">&times;</span>
+        </div>
+        <div class="chat-body">
+            <div class="msg msg-in">Selam, İktisat kitabı duruyor mu?</div>
+            <div class="msg msg-out">Evet duruyor, yarın okula geleceğim.</div>
+            <div class="msg msg-in">Tamamdır, kütüphanenin önünde buluşalım mı?</div>
+            <div class="msg msg-out">Uygun, saat 13:00 gibi oradayım 👍</div>
+        </div>
+        <div style="padding:15px; border-top:1px solid #eee; display:flex; gap:10px; background:white;">
+            <input type="text" placeholder="Mesaj yaz..." style="flex:1; border:none; outline:none;">
+            <button style="background:none; border:none; color:var(--primary); font-size:1.2rem;"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        function openModal() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('loginModal').style.display = 'none'; }
+        
+        function toggleChat() {
+            const chat = document.getElementById('chatWindow');
+            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const toast = document.getElementById('toast');
+
+            if(email.endsWith('@ogr.bozok.edu.tr')) {
+                errorMsg.style.display = 'none';
+                closeModal();
+                
+                // Toast Bildirimi Göster
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 3000);
+
+                // Giriş Yapıldı Görünümü
+                document.getElementById('guestNav').style.display = 'none';
+                document.getElementById('userNav').style.display = 'flex';
+            } else {
+                errorMsg.style.display = 'flex';
+                // Giriş kutusunu salla
+                document.getElementById('emailInput').style.borderColor = 'red';
+            }
+        }
+
+        // Modal dışına tıklayınca kapatma
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('loginModal')) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
